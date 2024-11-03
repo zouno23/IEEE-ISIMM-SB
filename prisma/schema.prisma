@@ -51,6 +51,7 @@ model User {
   role Role @default(CHAPTER_CHAIR)
   name String 
   email String 
+  clerkId String  @unique
 }
 
 
