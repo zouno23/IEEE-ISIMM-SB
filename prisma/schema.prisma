@@ -11,11 +11,168 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+enum EventType {
+  TECHNICAL
+  NON_TECHNICAL
+  ADMINISTRATIVE
+}
 
-    @@index([name])
+enum EventStatus {
+  UPCOMING
+  DONE
+  INPROGRESS
+}
+
+enum OUType {
+  SB
+  CHAPTER
+  WIE
+  SIGHT
+}
+
+enum PartnerPriority {
+  BRONZE
+  SILVER 
+  GOLD
+}
+
+enum AchievementType {
+  TECHNICAL
+  NON_TECHNICAL
+}
+
+enum Role {
+  SB_CHAIR
+  CHAPTER_CHAIR
+}
+
+model User {
+  id String @id @default(uuid())
+  role Role @default(CHAPTER_CHAIR)
+  name String 
+  email String 
+}
+
+
+model Global {
+  id          Int      @id @default(1)
+  logo        String?
+  addressId   Int?
+  address     Location? @relation(fields: [addressId], references: [id])
+  email       String?
+  phone       String?
+  socialMedia String[]
+  nbMmembers Int
+  sections Section[]
+  BecomePartnerDoc String?
+}
+
+model OU {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String
+  OUN         String
+  description String?
+  type        OUType
+  officers    Officer[]
+  events      Event[]
+  logo        String
+  banner      String
+  email       String
+  phone       String
+  socialMedia String[]
+  achievements Achievement[]
+}
+
+model Officer {
+  id           String   @id @default(uuid())
+  name         String
+  position     String
+  description  String?
+  mandateStart DateTime
+  mandateEnd   DateTime
+  image        String?
+  email        String
+  phone        String
+  socialMedia  String[]
+  ouId         String
+  ou           OU       @relation(fields: [ouId], references: [id])
+}
+
+model Event {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  images      String[]
+  cover       String
+  startDate   DateTime
+  endDate     DateTime
+  status      EventStatus @default(UPCOMING)
+  ouId        String
+  ou          OU          @relation(fields: [ouId], references: [id])
+  type        EventType
+  nbAttendees Int?
+  isImportant Boolean     @default(false)
+  venueId     Int?
+  venue       Location?   @relation(fields: [venueId], references: [id])
+  isRemote    Boolean     @default(false)
+  remoteLink  String?
+  tags String[]
+}
+
+model Location {
+  id        Int      @id @default(autoincrement())
+  longitude String
+  Latitude  String
+  events    Event[]
+  Global    Global[]
+}
+
+model Partner {
+  id String @id @default(uuid())
+  name String 
+  description String?
+  logo String
+  priority PartnerPriority
+}
+
+model Achievement {
+  id String @id @default(uuid())
+  title String
+  description String?
+  Type AchievementType
+  ouId String
+  ou OU @relation(fields: [ouId] , references: [id])
+}
+
+model MajorActivities {
+  id String @id @default(uuid())
+  title String
+  description String?
+  details Json?
+  cover String
+  tags String[]
+  facebook String?
+  instagram String?
+  website String?
+  date DateTime
+}
+
+model Section {
+  id String @id @default(uuid())
+  title String 
+  slug String 
+  description String?
+  content String
+  isComingSoon Boolean
+  globalId Int
+  global Global @relation(fields: [globalId] , references: [id])
+}
+
+model Contact {
+  id String @id @default(uuid())
+  name String 
+  email String
+  content String
+  isPartner Boolean @default(false)
 }
